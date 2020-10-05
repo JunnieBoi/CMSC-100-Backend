@@ -1,0 +1,12 @@
+{
+  "name": "warm-up",
+  "version": "0.0.0",
+  "description": "A file containing my understanding of the backend fundamentals in CMSC 100",
+  "main": "junnie.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"node junnie.js"
+  },
+  "author": "Junel Alje Isanan",
+  "license": "MIT"
+}

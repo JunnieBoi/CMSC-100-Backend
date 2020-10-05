@@ -5,8 +5,11 @@
   "main": "junnie.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start":"node junnie.js"
+    "start": "node junnie.js"
   },
   "author": "Junel Alje Isanan",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "fastify": "^3.5.1"
+  }
 }

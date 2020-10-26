@@ -13,6 +13,8 @@
     "fastify": "^3.5.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "should": "^13.2.3",
+    "tap": "^14.10.8"
   }
 }

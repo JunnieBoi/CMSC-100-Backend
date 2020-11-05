@@ -1,10 +1,10 @@
-const { build } = require('./junnie');
+const { build } = require('../junnie');
 
 require('tap').mochaGlobals();
 require('should');
 
 
-describe('for the route for (/)', 
+describe('for the route for (/)',
 
 () =>
 {
@@ -25,7 +25,7 @@ describe('for the route for (/)',
         success.should.equal(true);
         console.log('payload:',payload);
     });
-    
-} 
+
+}
 
 );

@@ -1,0 +1,25 @@
+{
+  "todos": [
+    {
+      "id": "672c4fbc-035a-438a-81e5-f299a5d3c581",
+      "text": "This is a todo",
+      "done": false,
+      "dateCreated": 1604575611601,
+      "dateUpdated": 1604575611601
+    },
+    {
+      "id": "57eb3b59-562a-47b5-bc11-8d2774593b0e",
+      "text": "This is a todo",
+      "done": false,
+      "dateCreated": 1604595273548,
+      "dateUpdated": 1604595273548
+    },
+    {
+      "id": "a887f0ac-1ba4-44a9-8425-3aa3d571c8e7",
+      "text": "This is a todo",
+      "done": false,
+      "dateCreated": 1604595504400,
+      "dateUpdated": 1604595504400
+    }
+  ]
+}

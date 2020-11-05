@@ -1,18 +1,12 @@
 const Fastify = require("fastify");
-
+const {routes} = require('./route');
 
 
 
 exports.build = async(opts = {logger:true,trustProxy:true}) =>
 {
     const app = Fastify(opts);
-    app.get('/',{
-  
-        handler: async (req) => {
-            console.log(req);
-            return {success:true}
-        }
-    });
+    routes(app);
     return app;
 }
 

@@ -5,11 +5,22 @@ exports.create = (app) =>
 {
     app.post('/todo',{
 
-        handler: async (req) =>
+        handler: async (request,response) =>
         {
             const id = uuid();
-            const {body} = req;
+            const {body} = request;
             const {text, done = false} = body || {};
+            if(!text)
+            {
+                return response
+                .code(400)
+                .send({
+                    success: false,
+                    code: 'todo/malformed',
+                    message: 'Payload doesn\'t have text property'
+                });
+            
+            }
 
             const filename =join(__dirname,'../../database.json');
             const encoding = 'utf8';

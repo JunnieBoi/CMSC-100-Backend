@@ -3,7 +3,7 @@ const { writeFileSync} = require('fs');
 const {join} = require('path');
 const {getTodos} = require('../../lib/lib.create');
 require('tap').mochaGlobals();
-const should = require('should');
+require('should');
 const { delay } = require('../../lib/delay');
 const { todo } = require('../../route/todo');
 
@@ -71,7 +71,7 @@ describe('get todos (/todo)',
         }
     });
 
-    it('it should return {success:true, data: array of todos} with method GET, statusCode is 200, has a limit of 3 items',async() =>
+    it('it should return {success:true, data:todo} with method GET, statusCode is 200, has a limit of 3 items',async() =>
     {
         const response = await app.inject({
             method: 'GET',
@@ -103,7 +103,43 @@ describe('get todos (/todo)',
         console.log('payload:',payload);
     });
 
-    it('it should return {success:true, data: array of todos} with method GET, statusCode is 200, has a limit of 3 items (in descending order)',async() =>
+
+
+    it('it should return {success:true, data:todo} with method GET, statusCode is 200, has a limit of 3 items',async() =>
+    {
+        const response = await app.inject({
+            method: 'GET',
+            url:'/todo?limit=2',
+        });
+        const payload = response.json();
+        const {statusCode} = response;
+        const {success,data} = payload;
+        success.should.equal(true);
+        statusCode.should.equal(200);
+        data.length.should.equal(2);
+
+        
+      
+        const database = getTodos(filename,encoding);
+        for(const todo of data)
+        {
+        const {text,done,id} = todo;
+        const index = database.findIndex(todo => todo.id == id);
+        index.should.not.equal(-1);
+        const {text: textDatabase, done:doneDatabase} = database[index];
+        text.should.equal(textDatabase);
+        done.should.equal(doneDatabase);
+        
+        }
+        
+
+
+        console.log('payload:',payload);
+    });
+
+
+
+    it('it should return {success:true, data: todo} with method GET, statusCode is 200, has a limit of 3 items (in descending order)',async() =>
     {
         const response = await app.inject({
             method: 'GET',
@@ -131,7 +167,9 @@ describe('get todos (/todo)',
     });
 
 
-    it('it should return {success:true, data: array of todos} with method GET, statusCode is 200, has a limit of 3 items (in descending order)',async() =>
+
+
+    it('it should return {success:true, data: todo} with method GET, statusCode is 200, has a limit of 3 items (in descending order)',async() =>
     {
         const todos = getTodos(filename,encoding);
         const id = ids[parseInt(Math.random() * ids.length)];
@@ -157,6 +195,10 @@ describe('get todos (/todo)',
         }
         data[data.length - 1].id.should.equal(id);
     });
+
+
+
+    
    
     
 });

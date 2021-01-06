@@ -5,7 +5,7 @@ const {join} = require('path');
 
 exports.get = (app) =>
 {
-    app.get('/todo/:id',(request) =>
+    app.get('/todo/:id',(request,response) =>
     {
         const {params} = request;
         const {id} = params;
@@ -13,19 +13,17 @@ exports.get = (app) =>
         const encoding = 'utf8';
         const todos = getTodos(filename,encoding);
         const index = todos.findIndex(todo => todo.id === id);
-        const data = todos[index];
-        todos.sort((prev,next) => prev.dateUpdated - next.dateUpdated);
-        for(const todo of todos)
+        if(index < 0)
         {
-            if(!startDate || startDate <= todo.dateUpdated)
-            {
-                if(data.length < limit)
-                {
-                    data.push(todo);
-                }
-            } 
+            return response
+                .code(400)
+                .send({
+                    success: false,
+                    code: 'todo/malformed',
+                    message: 'Todo doesn\'t exist'
+                });
         }
-        data.sort((prev,next) => next.dateUpdated - prev.dateUpdated);
+        const data = todos[index];
         return{
             success:true,
             data

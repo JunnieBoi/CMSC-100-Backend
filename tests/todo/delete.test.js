@@ -17,7 +17,7 @@ else
 }
 
 
-describe('get todos (/todo)',
+describe('delete todos (/todo)',
 
 () =>
 {
@@ -71,18 +71,19 @@ describe('get todos (/todo)',
         }
     });
 
-    it('it should return {success:true, data: array of todos} with method GET, statusCode is 200, has a limit of 3 items',async() =>
+    it('it should return {success:true} with method DELETE, statusCode is 200.',async() =>
     {
         const response = await app.inject({
-            method: 'GET',
+            method: 'DELETE',
             url:`/todo/${ids[0]}`,
         });
         const payload = response.json();
         const {statusCode} = response;
-        const {success,data} = payload;
-        const {text,done,id} = data;
+        const {success} = payload;
+        const id = ids[0];
         success.should.equal(true);
         statusCode.should.equal(200);
+        index.should.equal(-1);
         
       
         const todos = getTodos(filename,encoding);
@@ -105,7 +106,7 @@ describe('get todos (/todo)',
     it('it should return {success:false, data: array of todos} with method GET, statusCode is 404',async() =>
     {
         const response = await app.inject({
-            method: 'GET',
+            method: 'DELETE',
             url:`/todo/non-existing-ID`,
         });
         const payload = response.json();

@@ -3,7 +3,7 @@ const {build} = require("./junnie");
 async function start() {
     const server = await build(
         {
-            logger: false,
+            logger: true,
             trustProxy: true
         }
     );

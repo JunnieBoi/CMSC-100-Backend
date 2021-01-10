@@ -1,20 +1,12 @@
 const { build } = require('../../junnie');
 const { writeFileSync} = require('fs');
 const {join} = require('path');
-const {getTodos} = require('../../lib/lib.create');
+const {getTodos} = require('../../lib/get-todos');
 require('tap').mochaGlobals();
 require('should');
 const { delay } = require('../../lib/delay');
-const { todo } = require('../../route/todo');
 
-if(!startDate)
-{
-    todos.sort((prev,next) => next.dateUpdated - prev.dateUpdated);
-}
-else
-{
-    todos.sort((prev,next) => prev.dateUpdated - next.dateUpdated);
-}
+
 
 
 describe('get todos (/todo)',
@@ -29,13 +21,7 @@ describe('get todos (/todo)',
     before(async() =>
     {
         
-        const payloads = [{
-            text: 'This is a todo',
-            done: false
-        }];
-        app = await build(
-            
-        );
+        app = await build();    
         for(let i = 0; i < 5; i++)
         {
             const response = await app.inject({
@@ -52,8 +38,6 @@ describe('get todos (/todo)',
             ids.push(id);
             await delay(1000);
         }
-        
-        delay(1000);
     });
 
     after(async()=>
@@ -75,7 +59,7 @@ describe('get todos (/todo)',
     {
         const response = await app.inject({
             method: 'GET',
-            url:'/todo',
+            url:'/todo'
         });
         const payload = response.json();
         const {statusCode} = response;
@@ -97,19 +81,15 @@ describe('get todos (/todo)',
         done.should.equal(doneDatabase);
         
         }
-        
 
-
-        console.log('payload:',payload);
     });
 
 
-
-    it('it should return {success:true, data:todo} with method GET, statusCode is 200, has a limit of 3 items',async() =>
+    it('it should return {success:true, data:array of todos} with method GET, statusCode is 200, has a limit of 2 items',async() =>
     {
         const response = await app.inject({
             method: 'GET',
-            url:'/todo?limit=2',
+            url:'/todo?limit=2'
         });
         const payload = response.json();
         const {statusCode} = response;
@@ -131,15 +111,11 @@ describe('get todos (/todo)',
         done.should.equal(doneDatabase);
         
         }
-        
 
-
-        console.log('payload:',payload);
     });
 
 
-
-    it('it should return {success:true, data: todo} with method GET, statusCode is 200, has a limit of 3 items (in descending order)',async() =>
+    it('it should return {success:true, data:array of todos} with method GET, statusCode is 200, has a limit of 3 items (in descending order)',async() =>
     {
         const response = await app.inject({
             method: 'GET',
@@ -161,7 +137,7 @@ describe('get todos (/todo)',
         }
         const todos = getTodos(filename,encoding);
         todos.sort((prev,next) => next.dateUpdated - prev.dateUpdated);
-        todo = todo[0];
+        todo = todos[0];
         const responseTodo = data[0];
         todo.id.should.equal(responseTodo.id);
     });
@@ -169,12 +145,12 @@ describe('get todos (/todo)',
 
 
 
-    it('it should return {success:true, data: todo} with method GET, statusCode is 200, has a limit of 3 items (in descending order)',async() =>
+    it('it should return {success:true, data:array of todos} with method GET, statusCode is 200, has a limit of 3 items (in descending order) and the item is updated on or after startDate',async() =>
     {
         const todos = getTodos(filename,encoding);
         const id = ids[parseInt(Math.random() * ids.length)];
         const index = todos.findIndex(todo => todo.id === id);
-        const {dateUpdated: startDate} = todos[id];
+        const {dateUpdated: startDate} = todos[index];
         const response = await app.inject({
             method: 'GET',
             url:`/todo?startDate=${startDate}`,

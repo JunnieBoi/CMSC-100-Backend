@@ -1,4 +1,4 @@
-const {getTodos} = require('../../lib/lib.create');
+const {getTodos} = require('../../lib/get-todos');
 const {join} = require('path');
 
 
@@ -16,10 +16,10 @@ exports.get = (app) =>
         if(index < 0)
         {
             return response
-                .code(400)
+                .code(404)
                 .send({
                     success: false,
-                    code: 'todo/malformed',
+                    code: 'todo/not-found',
                     message: 'Todo doesn\'t exist'
                 });
         }

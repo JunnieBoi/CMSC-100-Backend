@@ -1,4 +1,4 @@
-const {getTodos} = require('../../lib/lib.create');
+const {getTodos} = require('../../lib/get-todos');
 const {join} = require('path');
 
 
@@ -13,7 +13,18 @@ exports.getMany = (app) =>
         const encoding = 'utf8';
         const todos = getTodos(filename,encoding);
         const data = [];
-        todos.sort((prev,next) => prev.dateUpdated - next.dateUpdated);
+
+
+        if (!startDate) 
+        {
+            todos.sort((prev, next) => next.dateUpdated - prev.dateUpdated);
+        } 
+        else
+        {
+            todos.sort((prev, next) => prev.dateUpdated - next.dateUpdated);
+        }
+      
+      
         for(const todo of todos)
         {
             if(!startDate || startDate <= todo.dateUpdated)

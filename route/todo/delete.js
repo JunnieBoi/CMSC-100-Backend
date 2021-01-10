@@ -1,6 +1,6 @@
-const {getTodos} = require('../../lib/lib.create');
+const {getTodos} = require('../../lib/get-todos');
 const {join} = require('path');
-
+const {writeFileSync} = require('fs');
 
 
 exports.deleteOne = (app) =>
@@ -13,21 +13,23 @@ exports.deleteOne = (app) =>
         const encoding = 'utf8';
         const todos = getTodos(filename,encoding);
         const index = todos.findIndex(todo => todo.id === id);
-        if(index < 0)
-        {
+         if (index < 0) 
+         {
             return response
-                .code(400)
-                .send({
-                    success: false,
-                    code: 'todo/malformed',
-                    message: 'Todo doesn\'t exist'
-                });
+            .code(404)
+            .send({
+            success: false,
+            code: 'todo/not-found',
+            message: 'Todo doesn\'t exist'
+        });
         }
+
+
         todos.splice(index,1);
-        const newdatabaseStringContents = JSON.stringify(database,null,2);
+        const newdatabaseStringContents = JSON.stringify({todos},null,2);
         writeFileSync(filename,newdatabaseStringContents,encoding);
         return{
-            success:true,
+            success:true
         };
         
     });

@@ -1,7 +1,7 @@
 const { build } = require('../../junnie');
 const { writeFileSync} = require('fs');
 const {join} = require('path');
-const {getTodos} = require('../../lib/lib.create');
+const {getTodos} = require('../../lib/get-todos');
 require('tap').mochaGlobals();
 const should = require('should');
 

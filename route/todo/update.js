@@ -1,4 +1,4 @@
-const {getTodos} = require('../../lib/lib.create');
+const {getTodos} = require('../../lib/get-todos');
 const {join} = require('path');
 const {writeFileSync} = require('fs');
 
@@ -6,11 +6,11 @@ const {writeFileSync} = require('fs');
 
 exports.update = (app) =>
 {
-    app.get('/todo/:id',(request,response) =>
+    app.put('/todo/:id',(request,response) =>
     {
         const {params, body} = request;
         const {id} = params;
-        const {text, done = false} = body || {};
+        const {text, done} = body || {};
 
         const filename = join(__dirname, '../../database.json');
         const encoding = 'utf8';
@@ -19,10 +19,10 @@ exports.update = (app) =>
         if(index < 0)
         {
             return response
-                .code(400)
+                .code(404)
                 .send({
                     success: false,
-                    code: 'todo/malformed',
+                    code: 'todo/not-found',
                     message: 'Todo doesn\'t exist'
                 });
         }
@@ -49,7 +49,7 @@ exports.update = (app) =>
         }
         todos[index] = data;
 
-        const newdatabaseStringContents = JSON.stringify(database,null,2);
+        const newdatabaseStringContents = JSON.stringify({todos},null,2);
         writeFileSync(filename,newdatabaseStringContents,encoding);
 
         return{

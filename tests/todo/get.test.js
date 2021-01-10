@@ -1,20 +1,10 @@
 const { build } = require('../../junnie');
 const { writeFileSync} = require('fs');
 const {join} = require('path');
-const {getTodos} = require('../../lib/lib.create');
+const {getTodos} = require('../../lib/get-todos');
 require('tap').mochaGlobals();
 const should = require('should');
-require('../../lib/delay');
-const { todo } = require('../../route/todo');
-
-if(!startDate)
-{
-    todos.sort((prev,next) => next.dateUpdated - prev.dateUpdated);
-}
-else
-{
-    todos.sort((prev,next) => prev.dateUpdated - next.dateUpdated);
-}
+const {delay} = require('../../lib/delay');
 
 
 describe('get todos (/todo)',
@@ -29,13 +19,7 @@ describe('get todos (/todo)',
     before(async() =>
     {
         
-        const payloads = [{
-            text: 'This is a todo',
-            done: false
-        }];
-        app = await build(
-            
-        );
+        app = await build();
         for(let i = 0; i < 1; i++)
         {
             const response = await app.inject({
@@ -52,8 +36,6 @@ describe('get todos (/todo)',
             ids.push(id);
             await delay(1000);
         }
-        
-        delay(1000);
     });
 
     after(async()=>
@@ -89,9 +71,6 @@ describe('get todos (/todo)',
         const index = todos.findIndex(todo => todo.id === id);
         const todo = todos[index];
         
-
-
-        console.log('payload:',payload);
         text.should.equal(todo.text);
         done.should.equal(todo.done);
         todo.should.equal(todo.id);
@@ -102,7 +81,7 @@ describe('get todos (/todo)',
 
 
 
-    it('it should return {success:false, data: array of todos} with method GET, statusCode is 404',async() =>
+    it('it should return {success:false, data: error message} with method GET, statusCode is 404',async() =>
     {
         const response = await app.inject({
             method: 'GET',
@@ -111,21 +90,11 @@ describe('get todos (/todo)',
         const payload = response.json();
         const {statusCode} = response;
         const {success,code,message} = payload;
-        const {text,done,id} = data;
+
         success.should.equal(false);
         statusCode.should.equal(404);
         
       
-        const todos = getTodos(filename,encoding);
-        const index = todos.findIndex(todo => todo.id === id);
-        const todo = todos[index];
-        
-
-
-        console.log('payload:',payload);
-        text.should.equal(todo.text);
-        done.should.equal(todo.done);
-        todo.should.equal(todo.id);
         should.exists(code);
         should.exists(message);
     });

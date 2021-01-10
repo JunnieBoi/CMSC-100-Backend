@@ -1,20 +1,11 @@
 const { build } = require('../../junnie');
 const { writeFileSync} = require('fs');
 const {join} = require('path');
-const {getTodos} = require('../../lib/lib.create');
+const {getTodos} = require('../../lib/get-todos');
 require('tap').mochaGlobals();
 const should = require('should');
-require('../../lib/delay');
-const { todo } = require('../../route/todo');
+const {delay} = require('../../lib/delay');
 
-if(!startDate)
-{
-    todos.sort((prev,next) => next.dateUpdated - prev.dateUpdated);
-}
-else
-{
-    todos.sort((prev,next) => prev.dateUpdated - next.dateUpdated);
-}
 
 
 describe('update todos using PUT(/todo)',
@@ -28,11 +19,6 @@ describe('update todos using PUT(/todo)',
     
     before(async() =>
     {
-        
-        const payloads = [{
-            text: 'This is a todo',
-            done: false
-        }];
         app = await build(
             
         );
@@ -52,8 +38,6 @@ describe('update todos using PUT(/todo)',
             ids.push(id);
             await delay(1000);
         }
-        
-        delay(1000);
     });
 
     after(async()=>
@@ -71,7 +55,7 @@ describe('update todos using PUT(/todo)',
         }
     });
 
-    it('it should return {success:true, data:todo} with method PUT, statusCode is 200',async() =>
+    it('it should return {success:true, data:todo} with method PUT, statusCode is 200, updates the item',async() =>
     {
         const response = await app.inject({
             method: 'PUT',
@@ -96,21 +80,19 @@ describe('update todos using PUT(/todo)',
         text.should.equal('new todo');
         done.should.equal(true);
 
-        console.log('payload:',payload);
         text.should.equal(todo.text);
         done.should.equal(todo.done);
         todo.should.equal(todo.id);
     });
 
-    it('it should return {success:true, data:todo} with method PUT, statusCode is 200',async() =>
+    it('it should return {success:true, data:todo} with method PUT, statusCode is 200,updates the text only',async() =>
     {
         const response = await app.inject({
             method: 'PUT',
             url:`/todo/${ids[1]}`,
             payload:
             {
-                text:"new todo 1",
-                done:true
+                text:"new todo 1"
             }
         });
         const payload = response.json();
@@ -129,7 +111,6 @@ describe('update todos using PUT(/todo)',
         text.should.equal('new todo 1');
         done.should.equal(false);
 
-        console.log('payload:',payload);
         text.should.equal(todo.text);
         done.should.equal(todo.done);
         todo.should.equal(todo.id);
@@ -137,45 +118,11 @@ describe('update todos using PUT(/todo)',
 
 
 
-    it('it should return {success:true, data:todo} with method PUT, statusCode is 200',async() =>
+    it('it should return {success:true, data:todo} with method PUT, statusCode is 200, updates the done item only',async() =>
     {
         const response = await app.inject({
             method: 'PUT',
-            url:`/todo/${ids[1]}`,
-            payload:
-            {
-                text:"new todo 1",
-                done:true
-            }
-        });
-        const payload = response.json();
-        const {statusCode} = response;
-        const {success,data} = payload;
-        const {text,done,id} = data;
-        success.should.equal(true);
-        statusCode.should.equal(200);
-        
-      
-        const todos = getTodos(filename,encoding);
-        const index = todos.findIndex(todo => todo.id === id);
-        const todo = todos[index];
-        
-
-        text.should.equal('new todo 1');
-        done.should.equal(false);
-
-        console.log('payload:',payload);
-        text.should.equal(todo.text);
-        done.should.equal(todo.done);
-        todo.should.equal(todo.id);
-    });
-
-
-    it('it should return {success:true, data:todo} with method PUT, statusCode is 200',async() =>
-    {
-        const response = await app.inject({
-            method: 'PUT',
-            url:`/todo/${ids[1]}`,
+            url:`/todo/${ids[2]}`,
             payload:
             {
                 done:true
@@ -196,28 +143,46 @@ describe('update todos using PUT(/todo)',
 
         done.should.equal(true);
 
-        console.log('payload:',payload);
         text.should.equal(todo.text);
         done.should.equal(todo.done);
         todo.should.equal(todo.id);
     });
 
 
-
-    it('it should return {success:true, data:todo} with method PUT, statusCode is 200',async() =>
+    it('it should return {success:false, message:error message} with method PUT, statusCode is 404, the id of the todo is non-existing',async() =>
     {
         const response = await app.inject({
             method: 'PUT',
-            url:`/todo/${ids[1]}`,
+            url:`/todo/non-existing-id`,
             payload:
             {
-                text:"new todo 1",
+                text:'new todo',
                 done:true
             }
         });
         const payload = response.json();
         const {statusCode} = response;
-        const {success,data} = payload;
+        const {success,code,message} = payload;
+
+        success.should.equal(false);
+        statusCode.should.equal(404);
+        
+      
+        should.exists(code);
+        should.exists(message);
+    });
+
+
+
+    it('it should return {success:false, data:error message} with method PUT, statusCode is 200',async() =>
+    {
+        const response = await app.inject({
+            method: 'PUT',
+            url:`/todo/${ids[3]}`,
+        });
+        const payload = response.json();
+        const {statusCode} = response;
+        const {success,code,message} = payload;
         const {text,done,id} = data;
         success.should.equal(true);
         statusCode.should.equal(200);
@@ -276,16 +241,16 @@ describe('update todos using PUT(/todo)',
         const payload = response.json();
         const {statusCode} = response;
         const {success,code,message} = payload;
-        const {text,done,id} = data;
+    
         success.should.equal(false);
         statusCode.should.equal(400);
-        
-      
+
         should.exists(code);
         should.exists(message);
+
     });
 
-    it('it should return {success:false, data:todo} with method PUT, statusCode is 400 since no payload was given',async() =>
+    it('it should return {success:false, data:error message} with method PUT, statusCode is 400 since a payload exists but no text or done attribute',async() =>
     {
         const response = await app.inject({
             method: 'PUT',
@@ -295,7 +260,7 @@ describe('update todos using PUT(/todo)',
         const payload = response.json();
         const {statusCode} = response;
         const {success,code,message} = payload;
-        const {text,done,id} = data;
+        
         success.should.equal(false);
         statusCode.should.equal(400);
         

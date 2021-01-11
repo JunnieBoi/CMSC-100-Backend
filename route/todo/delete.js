@@ -1,19 +1,14 @@
-const {getTodos} = require('../../lib/get-todos');
-const {join} = require('path');
-const {writeFileSync} = require('fs');
+const { Todo } = require('../../db');
 
 
 exports.deleteOne = (app) =>
 {
-    app.delete('/todo/:id',(request,response) =>
+    app.delete('/todo/:id',async (request,response) =>
     {
         const {params} = request;
         const {id} = params;
-        const filename = join(__dirname, '../../database.json');
-        const encoding = 'utf8';
-        const todos = getTodos(filename,encoding);
-        const index = todos.findIndex(todo => todo.id === id);
-         if (index < 0) 
+        const data = await Todo.findOneAndDelete({id}).exec();
+         if(!data) 
          {
             return response
             .code(404)
@@ -25,9 +20,6 @@ exports.deleteOne = (app) =>
         }
 
 
-        todos.splice(index,1);
-        const newdatabaseStringContents = JSON.stringify({todos},null,2);
-        writeFileSync(filename,newdatabaseStringContents,encoding);
         return{
             success:true
         };

@@ -1,31 +1,16 @@
-const {getTodos} = require('../../lib/get-todos');
-const {join} = require('path');
-const {writeFileSync} = require('fs');
+const { Todo } = require('../../db');
 
 
 
 exports.update = (app) =>
 {
-    app.put('/todo/:id',(request,response) =>
+    app.put('/todo/:id',async (request,response) =>
     {
         const {params, body} = request;
         const {id} = params;
         const {text, done} = body || {};
 
-        const filename = join(__dirname, '../../database.json');
-        const encoding = 'utf8';
-        const todos = getTodos(filename,encoding);
-        const index = todos.findIndex(todo => todo.id === id);
-        if(index < 0)
-        {
-            return response
-                .code(404)
-                .send({
-                    success: false,
-                    code: 'todo/not-found',
-                    message: 'Todo doesn\'t exist'
-                });
-        }
+        
 
         if(!text && (done === null || done === undefined))
         {
@@ -38,19 +23,41 @@ exports.update = (app) =>
                 });
         }
 
-        const data = todos[index];
+
+        const oldData = await Todo.findOne({ id }).exec();
+        if(!oldData)
+        {
+            return response
+                .code(404)
+                .send({
+                    success: false,
+                    code: 'todo/not-found',
+                    message: 'Todo doesn\'t exist'
+                });
+        }
+
+      
+
+        const update = {};
+
         if(text)
         {
-            data.text = text;
+            update.text = text;
         }
-        if(done)
+        if (done !== undefined && done !== null) 
         {
-            data.done = done;
+            update.done = done;
         }
-        todos[index] = data;
+      
+        update.dateUpdated = new Date().getTime();
 
-        const newdatabaseStringContents = JSON.stringify({todos},null,2);
-        writeFileSync(filename,newdatabaseStringContents,encoding);
+        const data = await Todo.findOneAndUpdate(
+            { id },
+            update,
+            { new: true }
+          )
+            .exec();
+      
 
         return{
             success:true,

@@ -1,10 +1,8 @@
 const { build } = require('../../junnie');
-const { writeFileSync} = require('fs');
-const {join} = require('path');
-const {getTodos} = require('../../lib/get-todos');
 require('tap').mochaGlobals();
 require('should');
 const { delay } = require('../../lib/delay');
+const { mongoose, Todo } = require('../../db');
 
 
 
@@ -15,8 +13,6 @@ describe('get todos (/todo)',
 {
     let app;
     const ids = [];
-    const filename =join(__dirname,'../../database.json');
-    const encoding = 'utf8';
     
     before(async() =>
     {
@@ -42,17 +38,11 @@ describe('get todos (/todo)',
 
     after(async()=>
     {
-        const todos = getTodos(filename,encoding);
         for (const id of ids)
         {
-            const index = todos.findIndex(todo => todo.id == id);
-            if(index >= 0)
-            {
-                todos.splice(index,1);
-            }
-
-            writeFileSync(filename,JSON.stringify({todos},null,2),encoding);
+            await Todo.findOneAndDelete({ id });
         }
+        await mongoose.connection.close();
     });
 
     it('it should return {success:true, data:todo} with method GET, statusCode is 200, has a limit of 3 items',async() =>
@@ -70,13 +60,17 @@ describe('get todos (/todo)',
 
         
       
-        const database = getTodos(filename,encoding);
         for(const todo of data)
         {
         const {text,done,id} = todo;
-        const index = database.findIndex(todo => todo.id == id);
-        index.should.not.equal(-1);
-        const {text: textDatabase, done:doneDatabase} = database[index];
+        const 
+        {
+            text: textDatabase,
+            done: doneDatabase
+        } = await Todo
+            .findOne({ id })
+            .exec();
+    
         text.should.equal(textDatabase);
         done.should.equal(doneDatabase);
         
@@ -99,14 +93,18 @@ describe('get todos (/todo)',
         data.length.should.equal(2);
 
         
-      
-        const database = getTodos(filename,encoding);
+
         for(const todo of data)
         {
         const {text,done,id} = todo;
-        const index = database.findIndex(todo => todo.id == id);
-        index.should.not.equal(-1);
-        const {text: textDatabase, done:doneDatabase} = database[index];
+        const 
+        {
+            text: textDatabase,
+            done: doneDatabase
+        } = await Todo
+            .findOne({ id })
+            .exec();
+    
         text.should.equal(textDatabase);
         done.should.equal(doneDatabase);
         
@@ -135,8 +133,14 @@ describe('get todos (/todo)',
             const nextTodo = data[i + 1];
             (nextTodo.dateUpdated  < prevTodo.dateUpdated).should.equal(true);
         }
-        const todos = getTodos(filename,encoding);
-        todos.sort((prev,next) => next.dateUpdated - prev.dateUpdated);
+        const todos = await Todo
+      .find()
+      .limit(3)
+      .sort({
+        dateUpdated: -1
+      })
+      .exec();
+
         todo = todos[0];
         const responseTodo = data[0];
         todo.id.should.equal(responseTodo.id);
@@ -147,10 +151,13 @@ describe('get todos (/todo)',
 
     it('it should return {success:true, data:array of todos} with method GET, statusCode is 200, has a limit of 3 items (in descending order) and the item is updated on or after startDate',async() =>
     {
-        const todos = getTodos(filename,encoding);
+       
         const id = ids[parseInt(Math.random() * ids.length)];
-        const index = todos.findIndex(todo => todo.id === id);
-        const {dateUpdated: startDate} = todos[index];
+
+        const { dateUpdated: startDate } = await Todo
+        .findOne({ id })
+        .exec();
+
         const response = await app.inject({
             method: 'GET',
             url:`/todo?startDate=${startDate}`,

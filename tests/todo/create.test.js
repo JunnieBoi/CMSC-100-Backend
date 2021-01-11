@@ -1,9 +1,7 @@
 const { build } = require('../../junnie');
-const { writeFileSync} = require('fs');
-const {join} = require('path');
-const {getTodos} = require('../../lib/get-todos');
 require('tap').mochaGlobals();
 const should = require('should');
+const { mongoose, Todo } = require('../../db');
 
 
 
@@ -14,9 +12,7 @@ describe('for the route for todo (/todo)',
 {
     let app;
     const ids = [];
-    const filename = join(__dirname,'../../database.json');
-    const encoding = 'utf8';
-    
+   
     before(async() =>
     {
         app = await build();
@@ -24,17 +20,12 @@ describe('for the route for todo (/todo)',
 
     after(async()=>
     {
-        const todos = getTodos(filename,encoding);
+        
         for (const id of ids)
         {
-            const index = todos.findIndex(todo => todo.id == id);
-            if(index >= 0)
-            {
-                todos.splice(index,1);
-            }
-
-            writeFileSync(filename,JSON.stringify({todos},null,2),encoding);
+            await Todo.findOneAndDelete({ id });
         }
+        await mongoose.connection.close();
     });
     it('it should return {success:true, data: (new todo object)} with method GET',async() =>
     {
@@ -57,11 +48,14 @@ describe('for the route for todo (/todo)',
 
         
       
-        const database = getTodos(filename,encoding);
-
-        const index = database.findIndex(todo => todo.id == id);
-        index.should.not.equal(-1);
-        const {text: textDatabase, done:doneDatabase} = database[index];
+        const
+        {
+            text: textDatabase,
+            done: doneDatabase
+        } = await Todo
+            .findOne({ id })
+            .exec();
+      
         text.should.equal(textDatabase);
         done.should.equal(doneDatabase);
         
@@ -74,31 +68,35 @@ describe('for the route for todo (/todo)',
     {
         const response = await app.inject({
             method: 'POST',
-            url:'/todo',
+            url: '/todo',
             payload: {
-                text: "This is a todo 2",
+                text: 'This is a todo 2'
             }
         });
+    
         const payload = response.json();
-        const {statusCode} = response;
-        const {success,data} = payload;
-        const {text,done,id} = data;
+        const { statusCode } = response;
+        const { success, data } = payload;
+        const { text, done, id } = data;
+    
         success.should.equal(true);
         statusCode.should.equal(200);
-        text.should.equal("This is a todo 2");
+        text.should.equal('This is a todo 2');
         done.should.equal(false);
-
-       
-        const database = getTodos(filename,encoding);
-
-        const index = database.findIndex(todo => todo.id == id);
-        index.should.not.equal(-1);
-        const {text: textDatabase, done:doneDatabase} = database[index];
+    
+        const 
+        {
+        text: textDatabase,
+        done: doneDatabase
+        } = await Todo
+        .findOne({ id })
+        .exec();
+    
         text.should.equal(textDatabase);
         done.should.equal(doneDatabase);
+    
         ids.push(id);
-
-        console.log('payload:',payload);
+      
     });
 
 

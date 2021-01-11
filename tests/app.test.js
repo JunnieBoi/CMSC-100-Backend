@@ -1,5 +1,5 @@
 const { build } = require('../junnie');
-
+const { mongoose } = require('../db');
 require('tap').mochaGlobals();
 require('should');
 
@@ -15,6 +15,12 @@ describe('for the route for (/)',
             logger: false,
             trustProxy: false
         });
+    });
+
+    after(async () => 
+    {
+        // close the connection to the database
+        await mongoose.connection.close();
     });
     it('it should return {success:true} with method GET',async() =>
     {

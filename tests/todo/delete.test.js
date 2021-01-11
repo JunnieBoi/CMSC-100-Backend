@@ -1,10 +1,8 @@
 const { build } = require('../../junnie');
-const { writeFileSync} = require('fs');
-const {join} = require('path');
-const {getTodos} = require('../../lib/get-todos');
 require('tap').mochaGlobals();
 const should = require('should');
 const {delay} = require('../../lib/delay');
+const { mongoose, Todo } = require('../../db');
 
 
 
@@ -14,8 +12,6 @@ describe('delete todos (/todo)',
 {
     let app;
     const ids = [];
-    const filename =join(__dirname,'../../database.json');
-    const encoding = 'utf8';
     
     before(async() =>
     {
@@ -40,17 +36,11 @@ describe('delete todos (/todo)',
 
     after(async()=>
     {
-        const todos = getTodos(filename,encoding);
         for (const id of ids)
         {
-            const index = todos.findIndex(todo => todo.id == id);
-            if(index >= 0)
-            {
-                todos.splice(index,1);
-            }
-
-            writeFileSync(filename,JSON.stringify({todos},null,2),encoding);
+            await Todo.findOneAndDelete({ id });
         }
+        await mongoose.connection.close();
     });
 
     it('it should return {success:true} with method DELETE, statusCode is 200.',async() =>
@@ -68,9 +58,12 @@ describe('delete todos (/todo)',
         
         
       
-        const todos = getTodos(filename,encoding);
-        const index = todos.findIndex(todo => todo.id === id);
-        index.should.equal(-1);
+        const todo = await Todo
+        .findOne({ id })
+        .exec();
+
+        should.not.exists(todo);
+
         
     });
 

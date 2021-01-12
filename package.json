@@ -13,6 +13,7 @@
     "fastify": "^3.5.1"
   },
   "devDependencies": {
+    "fastify-swagger": "^3.5.0",
     "fs": "0.0.1-security",
     "nodemon": "^2.0.4",
     "path": "^0.12.7",

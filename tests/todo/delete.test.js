@@ -2,7 +2,8 @@ const { build } = require('../../junnie');
 require('tap').mochaGlobals();
 const should = require('should');
 const {delay} = require('../../lib/delay');
-const { mongoose, Todo } = require('../../db');
+const { mongoose, Todo, User } = require('../../db');
+
 
 
 
@@ -11,16 +12,41 @@ describe('delete todos (/todo)',
 () =>
 {
     let app;
+    let authorization;
     const ids = [];
     
     before(async() =>
     {
         app = await build();
+        const payload = {
+            username: 'testuser1',
+            password: 'password1234567890'
+          }
+      
+          await app.inject({
+            method: 'POST',
+            url: '/user',
+            payload
+          });
+      
+          const response = await app.inject({
+            method: 'POST',
+            url: '/login',
+            payload
+          });
+          const { data: token } = response.json();
+      
+          authorization = `Bearer ${token}`;
+      
         for(let i = 0; i < 1; i++)
         {
             const response = await app.inject({
                 method: 'POST',
                 url:'/todo',
+                headers: {
+                    authorization
+                  },
+          
                 payload: {
                     text: `Todo ${i}`,
                     done: false
@@ -40,6 +66,7 @@ describe('delete todos (/todo)',
         {
             await Todo.findOneAndDelete({ id });
         }
+        await User.findOneAndDelete({ username: 'testuser1' });
         await mongoose.connection.close();
     });
 
@@ -47,7 +74,11 @@ describe('delete todos (/todo)',
     {
         const response = await app.inject({
             method: 'DELETE',
-            url:`/todo/${ids[0]}`
+            url:`/todo/${ids[0]}`,
+            headers: {
+                authorization
+              }
+        
         });
         const payload = response.json();
         const {statusCode} = response;
@@ -76,7 +107,12 @@ describe('delete todos (/todo)',
     {
         const response = await app.inject({
             method: 'DELETE',
-            url:`/todo/non-existing-ID`
+            url:`/todo/non-existing-ID`,
+            headers: {
+                authorization
+              }
+        
+            
         });
         const payload = response.json();
         const {statusCode} = response;

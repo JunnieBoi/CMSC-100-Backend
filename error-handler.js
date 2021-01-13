@@ -27,7 +27,7 @@ exports.errorHandler = (error, request, response) => {
     return response
       .code(statusCode)
       .send({
-        sucess: false,
+        success: false,
         code: errorCode,
         message: errorMessage
       });

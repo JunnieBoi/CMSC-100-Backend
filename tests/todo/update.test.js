@@ -3,6 +3,7 @@ require('tap').mochaGlobals();
 const should = require('should');
 const {delay} = require('../../lib/delay');
 const { mongoose, Todo } = require('../../db');
+const { mongoose, Todo, User } = require('../../db');
 
 
 
@@ -11,8 +12,28 @@ describe('update todos using PUT(/todo)',
 () =>
 {
     let app;
+    let authorization = '';
     const ids = [];
-
+    const payload = {
+        username: 'testuser4',
+        password: 'password1234567890'
+      }
+  
+      await app.inject({
+        method: 'POST',
+        url: '/user',
+        payload
+      });
+  
+      const response = await app.inject({
+        method: 'POST',
+        url: '/login',
+        payload
+      });
+      const { data: token } = response.json();
+  
+      authorization = `Bearer ${token}`;
+  
     before(async() =>
     {
         app = await build(
@@ -23,6 +44,9 @@ describe('update todos using PUT(/todo)',
             const response = await app.inject({
                 method: 'POST',
                 url:'/todo',
+                headers: {
+                    authorization
+                  },          
                 payload: {
                     text: `Todo ${i}`,
                     done: false
@@ -42,6 +66,7 @@ describe('update todos using PUT(/todo)',
         {
             await Todo.findOneAndDelete({ id });
         }
+        await User.findOneAndDelete({ username: 'testuser4' });
         await mongoose.connection.close();
     });
 
@@ -50,6 +75,9 @@ describe('update todos using PUT(/todo)',
         const response = await app.inject({
             method: 'PUT',
             url:`/todo/${ids[0]}`,
+            headers: {
+                authorization
+              },      
             payload:
             {
                 text:"new todo",
@@ -79,6 +107,9 @@ describe('update todos using PUT(/todo)',
         const response = await app.inject({
             method: 'PUT',
             url:`/todo/${ids[1]}`,
+            headers: {
+                authorization
+              },      
             payload:
             {
                 text:"new todo 1"
@@ -113,6 +144,9 @@ describe('update todos using PUT(/todo)',
         const response = await app.inject({
             method: 'PUT',
             url:`/todo/${ids[2]}`,
+            headers: {
+                authorization
+              },      
             payload:
             {
                 done:true
@@ -144,6 +178,9 @@ describe('update todos using PUT(/todo)',
         const response = await app.inject({
             method: 'PUT',
             url:`/todo/non-existing-id`,
+            headers: {
+                authorization
+              },      
             payload:
             {
                 text:'new todo',
@@ -168,6 +205,9 @@ describe('update todos using PUT(/todo)',
         const response = await app.inject({
             method: 'PUT',
             url:`/todo/${ids[3]}`,
+            headers: {
+                authorization
+              }      
         });
         const payload = response.json();
         const {statusCode} = response;
@@ -186,6 +226,9 @@ describe('update todos using PUT(/todo)',
         const response = await app.inject({
             method: 'PUT',
             url:`/todo/${ids[3]}`,
+            headers: {
+                authorization
+              },      
             payload:{}
         });
         const payload = response.json();

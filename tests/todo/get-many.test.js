@@ -2,8 +2,7 @@ const { build } = require('../../junnie');
 require('tap').mochaGlobals();
 require('should');
 const { delay } = require('../../lib/delay');
-const { mongoose, Todo } = require('../../db');
-
+const { mongoose, Todo, User } = require('../../db');
 
 
 
@@ -12,17 +11,42 @@ describe('get todos (/todo)',
 () =>
 {
     let app;
+    let authorization = '';
     const ids = [];
     
     before(async() =>
     {
         
         app = await build();    
+        const payload = {
+            username: 'testuser2',
+            password: 'password1234567890'
+          }
+      
+          await app.inject({
+            method: 'POST',
+            url: '/user',
+            payload
+          });
+      
+          const response = await app.inject({
+            method: 'POST',
+            url: '/login',
+            payload
+          });
+          const { data: token } = response.json();
+      
+          authorization = `Bearer ${token}`;
+      
         for(let i = 0; i < 5; i++)
         {
             const response = await app.inject({
                 method: 'POST',
                 url:'/todo',
+                headers: {
+                    authorization
+                  },
+          
                 payload: {
                     text: `Todo ${i}`,
                     done: false
@@ -42,6 +66,7 @@ describe('get todos (/todo)',
         {
             await Todo.findOneAndDelete({ id });
         }
+        await User.findOneAndDelete({ username: 'testuser2' });
         await mongoose.connection.close();
     });
 
@@ -49,7 +74,11 @@ describe('get todos (/todo)',
     {
         const response = await app.inject({
             method: 'GET',
-            url:'/todo'
+            url:'/todo',
+            headers: {
+                authorization
+              }
+      
         });
         const payload = response.json();
         const {statusCode} = response;
@@ -83,7 +112,11 @@ describe('get todos (/todo)',
     {
         const response = await app.inject({
             method: 'GET',
-            url:'/todo?limit=2'
+            url:'/todo?limit=2',
+            headers: {
+                authorization
+              }
+        
         });
         const payload = response.json();
         const {statusCode} = response;
@@ -118,6 +151,10 @@ describe('get todos (/todo)',
         const response = await app.inject({
             method: 'GET',
             url:'/todo',
+            headers: {
+                authorization
+              }
+        
         });
         const payload = response.json();
         const {statusCode} = response;
@@ -161,6 +198,10 @@ describe('get todos (/todo)',
         const response = await app.inject({
             method: 'GET',
             url:`/todo?startDate=${startDate}`,
+            headers: {
+                authorization
+              }
+        
         });
         const payload = response.json();
         const {statusCode} = response;
@@ -188,7 +229,11 @@ describe('get todos (/todo)',
     
         const response = await app.inject({
           method: 'GET',
-          url: `/todo?endDate=${endDate}`
+          url: `/todo?endDate=${endDate}`,
+          headers: {
+            authorization
+          }
+    
         });
     
         const payload = response.json();

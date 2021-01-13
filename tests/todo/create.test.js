@@ -1,7 +1,7 @@
 const { build } = require('../../junnie');
 require('tap').mochaGlobals();
 const should = require('should');
-const { mongoose, Todo } = require('../../db');
+const { mongoose, Todo, User } = require('../../db');
 
 
 
@@ -11,11 +11,32 @@ describe('for the route for todo (/todo)',
 () =>
 {
     let app;
+    let authorization = '';
     const ids = [];
    
     before(async() =>
     {
         app = await build();
+        const payload = {
+            username: 'testuser',
+            password: 'password1234567890'
+          }
+      
+          await app.inject({
+            method: 'POST',
+            url: '/user',
+            payload
+          });
+      
+          const response = await app.inject({
+            method: 'POST',
+            url: '/login',
+            payload
+          });
+          const { data: token } = response.json();
+      
+          authorization = `Bearer ${token}`;
+      
     });
 
     after(async()=>
@@ -25,6 +46,7 @@ describe('for the route for todo (/todo)',
         {
             await Todo.findOneAndDelete({ id });
         }
+        await User.findOneAndDelete({ username: 'testuser' });
         await mongoose.connection.close();
     });
     it('it should return {success:true, data: (new todo object)} with method GET',async() =>
@@ -35,7 +57,11 @@ describe('for the route for todo (/todo)',
             payload: {
                 text: "This is a todo",
                 done: false
-            }
+            },
+            headers: {
+                authorization
+              },
+        
         });
         const payload = response.json();
         const {statusCode} = response;
@@ -69,9 +95,14 @@ describe('for the route for todo (/todo)',
         const response = await app.inject({
             method: 'POST',
             url: '/todo',
+            headers: {
+                authorization
+              },
+        
             payload: {
                 text: 'This is a todo 2'
             }
+            
         });
     
         const payload = response.json();
@@ -105,6 +136,9 @@ describe('for the route for todo (/todo)',
         const response = await app.inject({
             method: 'POST',
             url:'/todo',
+            headers: {
+                authorization
+              },        
             payload: {
                 done:true
             }
@@ -113,7 +147,7 @@ describe('for the route for todo (/todo)',
         const {statusCode} = response;
         const {success,message} = payload;
 
-        //success.should.equal(false);
+        success.should.equal(false);
         statusCode.should.equal(400);
         should.exist(message);
 
@@ -126,12 +160,16 @@ describe('for the route for todo (/todo)',
         const response = await app.inject({
             method: 'POST',
             url:'/todo',
+            headers: {
+                authorization
+              }
+        
         });
         const payload = response.json();
         const {statusCode} = response;
         const {success,message} = payload;
 
-        //success.should.equal(false);
+        success.should.equal(false);
         statusCode.should.equal(400);
         should.exist(message);
 

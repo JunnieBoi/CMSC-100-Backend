@@ -1,6 +1,7 @@
 const {todo} = require('./todo');
 const { definitions } = require('../definitions');
 const { SuccessResponse } = definitions;
+const { user } = require('./user');
 
 
 exports.routes = (app) =>
@@ -23,4 +24,5 @@ exports.routes = (app) =>
         }
     });
     todo(app);
+    user(app);
 }

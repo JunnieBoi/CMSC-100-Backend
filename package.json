@@ -10,6 +10,7 @@
   "author": "Junel Alje Isanan",
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^5.0.0",
     "fastify": "^3.5.1"
   },
   "devDependencies": {

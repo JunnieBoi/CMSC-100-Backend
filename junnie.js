@@ -39,6 +39,46 @@ exports.build = async(opts = {logger:false,trustProxy:false}) =>
     }
   });
 
+  await app
+    .decorate('verifyJWT', async (request, response) => {
+      const { headers } = request;
+      const { authorization } = headers;
+
+      let authorizationToken;
+
+      if (!authorization) {
+        return response.unauthorized('auth/no-authorization-header')
+      }
+
+      if (authorization) {
+        [, authorizationToken] = authorization.split('Bearer ');
+      }
+
+      const token = authorizationToken;
+
+      try {
+        await app.jwt.verify(token);
+        const { username } = app.jwt.decode(token);
+
+        const user = await User.findOne({ username }).exec();
+
+        if (!user) {
+          return response.unauthorized('auth/no-user');
+        }
+
+        request.user = user;
+        request.token = token;
+      } catch (error) {
+        console.error(error);
+
+        if (error.message === 'jwt expired') {
+          return response.unauthorized('auth/expired');
+        }
+        return response.unauthorized('auth/unauthorized');
+      }
+    })
+    .register(auth);
+
   
     app.register(swagger, {
         routePrefix: '/docs',

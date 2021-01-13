@@ -32,12 +32,7 @@ exports.update = (app) =>
         if(!text && (done === null || done === undefined))
         {
             return response
-                .code(400)
-                .send({
-                    success: false,
-                    code: 'todo/malformed',
-                    message: 'Todo doesn\'t exist'
-                });
+            .badRequest('request/malformed');
         }
 
 
@@ -45,12 +40,7 @@ exports.update = (app) =>
         if(!oldData)
         {
             return response
-                .code(404)
-                .send({
-                    success: false,
-                    code: 'todo/not-found',
-                    message: 'Todo doesn\'t exist'
-                });
+            .notFound('todo/not-found')
         }
 
       

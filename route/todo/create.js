@@ -13,14 +13,20 @@ exports.create = (app) =>
             body: PostTodoRequest,
             response: {
               200: GetOneTodoResponse
-            }
+            },
+            security: [{
+                bearer: []
+              }]
           },
+          preHandler: app.auth([app.verifyJWT]),
+      
       
         handler: async (request,response) =>
         {
             
-            const {body} = request;
+            const {body,user} = request;
             const {text, done = false} = body;
+            const { username } = user;
             // if(!text)
             // {
             //     return response
@@ -36,7 +42,8 @@ exports.create = (app) =>
 
             const data = new Todo({
                 text,
-                done 
+                done,
+                username,
             });
 
            await data.save();

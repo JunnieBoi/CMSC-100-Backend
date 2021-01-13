@@ -8,6 +8,10 @@ const sensible = require('fastify-sensible');
 const { errorHandler } = require('./error-handler');
 const jwt = require('fastify-jwt');
 const { readFileSync } = require('fs');
+const cookie = require('fastify-cookie');
+const session = require('fastify-session');
+const cors = require('fastify-cors');
+const { connect, User, DiscardedToken } = require('./db');
 
 
 const audience = 'this-audience';
@@ -18,6 +22,11 @@ exports.build = async(opts = {logger:false,trustProxy:false}) =>
 {
     const app = Fastify(opts);
     
+    app.register(cors, {
+      origin: true,
+      credentials: true
+    })
+  
     app.register(sensible).after(() => {
       app.setErrorHandler(errorHandler);
     });
@@ -39,14 +48,27 @@ exports.build = async(opts = {logger:false,trustProxy:false}) =>
     }
   });
 
+  app.register(cookie);
+  app.register(session, {
+    cookieName: 'sessionToken',
+    secret: readFileSync('./cert/keyfile', 'utf8'),
+    cookie: {
+      secure: false,
+      httpOnly: true
+    },
+    maxAge: 60 * 60
+  });
+
+
   await app
     .decorate('verifyJWT', async (request, response) => {
-      const { headers } = request;
+      const { headers,session } = request;
       const { authorization } = headers;
+      const { token: cookieToken } = session;
 
       let authorizationToken;
 
-      if (!authorization) {
+      if (!authorization && !cookieToken) {
         return response.unauthorized('auth/no-authorization-header')
       }
 
@@ -54,11 +76,16 @@ exports.build = async(opts = {logger:false,trustProxy:false}) =>
         [, authorizationToken] = authorization.split('Bearer ');
       }
 
-      const token = authorizationToken;
+      const token = authorizationToken || cookieToken;
 
       try {
         await app.jwt.verify(token);
         const { username } = app.jwt.decode(token);
+        const discarded = await DiscardedToken.findOne({ username, token }).exec();
+
+        if (discarded) {
+          return response.unauthorized('auth/discarded');
+        }
 
         const user = await User.findOne({ username }).exec();
 

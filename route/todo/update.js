@@ -17,13 +17,25 @@ exports.update = (app) =>
         params: GetOneTodoParams,
         response: {
           200: GetOneTodoResponse
-        }
+        },
+        security: [
+          {
+            bearer: []
+          }
+        ]
+  
       },
+
+      preHandler: app.auth([
+        app.verifyJWT
+      ]),
+  
   
     
     handler: async (request,response) =>
     {
-        const {params, body} = request;
+        const {params, body, user} = request;
+        const { username } = user;
         const {id} = params;
         const {text, done} = body || {};
 
@@ -36,7 +48,7 @@ exports.update = (app) =>
         }
 
 
-        const oldData = await Todo.findOne({ id }).exec();
+        const oldData = await Todo.findOne({ id, username }).exec();
         if(!oldData)
         {
             return response

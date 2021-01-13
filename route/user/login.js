@@ -31,7 +31,7 @@ exports.login = app => {
             message: 'Wrong password'
           });
       }
-
+      request.session.token = data;
       return {
         success: true
       }

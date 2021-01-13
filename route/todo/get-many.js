@@ -12,14 +12,29 @@ exports.getMany = app => {
       query: GetManyTodoQuery,
       response: {
         200: GetManyTodoResponse
-      }
+      },
+      security: [
+        {
+          bearer: []
+        }
+      ]
+
     },
 
+    preHandler: app.auth([
+      app.verifyJWT
+    ]),
+
+
     handler: async (request) => {
-      const { query } = request;
+      const { query, user } = request;
+      const { username } = user;
       const { limit = 3, startDate, endDate } = query;
 
-      const options = {};
+      const options = {
+        username
+      };
+
 
       if (startDate) {
         options.dateUpdated = {};

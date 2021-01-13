@@ -12,8 +12,19 @@ exports.deleteOne = app => {
         params: GetOneTodoParams,
         response: {
           200: SuccessResponse
-        }
+        },
+        security: [
+          {
+            bearer: []
+          }
+        ]
+  
       },
+
+      preHandler: app.auth([
+        app.verifyJWT
+      ]),
+  
       
       handler: async (request, response) => {
         const { params } = request;

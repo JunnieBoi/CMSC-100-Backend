@@ -92,7 +92,17 @@ exports.build = async(opts = {logger:false,trustProxy:false}) =>
           schemes: ['http', 'https'],
           consumes: ['application/json'],
           produces: ['application/json'],
-          definitions
+          definitions,
+          securityDefinitions: {
+            bearer: {
+              type: 'apiKey',
+              scheme: 'bearer',
+              bearerFormat: 'JWT',
+              name: 'authorization',
+              in: 'header'
+            }
+          }
+    
         }
       });
     

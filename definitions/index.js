@@ -4,7 +4,24 @@ const UniqueIDData = {
     value: '1325cff1-8f82-46f6-843a-ceaf6d571248',
     example: '1325cff1-8f82-46f6-843a-ceaf6d571248'
   };
+
   
+  const UsernameData = {
+    type: 'string',
+    description: 'A unique username',
+    value: 'tjmonsi',
+    example: 'tjmonsi'
+  };
+  
+  const PasswordData = {
+    type: 'string',
+    description: 'Password string',
+    value: '1325cff18f8246f6843aceaf6d571248',
+    example: '1325cff18f8246f6843aceaf6d571248'
+  }
+
+  
+
   const TextData = {
     type: 'string',
     description: 'Any textual string',
@@ -83,6 +100,27 @@ const UniqueIDData = {
       id: UniqueIDData
     }
   }
+
+  const UserFullData = {
+    type: 'object',
+    description: 'User data for response without the password',
+    properties: {
+      username: UsernameData,
+      dateUpdated: DateData,
+      dateCreated: DateData
+    }
+  }
+  
+  const GetOneUserResponse = {
+    type: 'object',
+    description: 'Returns a a user',
+    required: ['success', 'data'],
+    properties: {
+      success: SuccessData,
+      data: UserFullData
+    }
+  }
+  
   
   const GetManyTodoResponse = {
     type: 'object',
@@ -93,6 +131,20 @@ const UniqueIDData = {
       data: TodoListData
     }
   }
+  
+  const PostUserRequest = {
+    type: 'object',
+    description: 'User object data for creation',
+    required: [
+      'username',
+      'password'
+    ],
+    properties: {
+      username: UsernameData,
+      password: PasswordData
+    }
+  }
+
   
   const PostTodoRequest = {
     type: 'object',
@@ -132,6 +184,9 @@ const UniqueIDData = {
     GetOneTodoParams,
     GetOneTodoResponse,
     PostTodoRequest,
-    PutTodoRequest
+    PutTodoRequest,
+    PostUserRequest,
+    GetOneUserResponse
+  
   }
   

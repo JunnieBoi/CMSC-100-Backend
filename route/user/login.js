@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const { User } = require('../../db');
 const { definitions } = require('../../definitions');
-const { SuccessResponse, PostUserRequest } = definitions;
+const { LoginResponse, PostUserRequest } = definitions;
 
 exports.login = app => {
   app.post('/login', {
@@ -11,7 +11,7 @@ exports.login = app => {
       summary: 'Logs in a user',
       body: PostUserRequest,
       response: {
-        200: SuccessResponse
+        200: LoginResponse
       }
     },
    

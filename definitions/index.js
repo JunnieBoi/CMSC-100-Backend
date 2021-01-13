@@ -5,6 +5,13 @@ const UniqueIDData = {
     example: '1325cff1-8f82-46f6-843a-ceaf6d571248'
   };
 
+  const JWTData = {
+    type: 'string',
+    description: 'A JSON Web Token',
+    value: '1325cff1-8f82-46f6-843a-ceaf6d571248',
+    example: '1325cff1-8f82-46f6-843a-ceaf6d571248'
+  };
+  
   
   const UsernameData = {
     type: 'string',
@@ -12,6 +19,17 @@ const UniqueIDData = {
     value: 'tjmonsi',
     example: 'tjmonsi'
   };
+  
+  const LoginResponse = {
+    type: 'object',
+    description: 'Returns a JWT data',
+    required: ['success', 'data'],
+    properties: {
+      success: SuccessData,
+      data: JWTData
+    }
+  }
+
   
   const PasswordData = {
     type: 'string',
@@ -186,7 +204,8 @@ const UniqueIDData = {
     PostTodoRequest,
     PutTodoRequest,
     PostUserRequest,
-    GetOneUserResponse
+    GetOneUserResponse,
+    LoginResponse
   
   }
   

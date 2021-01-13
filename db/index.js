@@ -12,4 +12,5 @@ exports.connect = () => new Promise((resolve, reject) => {
   connection.once('open', resolve);
 });
 exports.Todo = require('./models/todo')(mongoose);
+exports.User = require('./models/user')(mongoose);
 exports.mongoose = mongoose;

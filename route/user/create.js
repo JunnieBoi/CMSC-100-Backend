@@ -1,23 +1,21 @@
-const bcrypt = require('bcrypt');
-const { User } = require('../../db');
-const { definitions } = require('../../definitions');
+const bcrypt = require("bcrypt");
+const { User } = require("../../db");
+const { definitions } = require("../../definitions");
 const { GetOneUserResponse, PostUserRequest } = definitions;
 const saltRounds = 10;
 
-
-exports.create = app => {
-  app.post('/user', {
+exports.create = (app) => {
+  app.post("/user", {
     schema: {
-      description: 'Create one user',
-      tags: ['User'],
-      summary: 'Create one user',
+      description: "Create one user",
+      tags: ["User"],
+      summary: "Create one user",
       body: PostUserRequest,
       response: {
-        200: GetOneUserResponse
-      }
+        200: GetOneUserResponse,
+      },
     },
 
-    
     handler: async (request, response) => {
       const { body } = request;
       const { username, password } = body;
@@ -33,8 +31,8 @@ exports.create = app => {
 
       return {
         success: true,
-        data
-      }
-    }
-  })
+        data,
+      };
+    },
+  });
 };

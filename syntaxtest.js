@@ -1,18 +1,15 @@
-const {build} = require("./junnie");
+const { build } = require("./junnie");
 
 async function start() {
-    const server = await build(
-        {
-            logger: true,
-            trustProxy: true
-        }
-    );
-    const port = parseInt(process.env.PORT || '8080');
-    const address = "0.0.0.0";
+  const server = await build({
+    logger: true,
+    trustProxy: true,
+  });
+  const port = parseInt(process.env.PORT || "8080");
+  const address = "0.0.0.0";
 
-    const addr = await server.listen(port,address);
-    console.log(`Listening on ${addr}`);
+  const addr = await server.listen(port, address);
+  console.log(`Listening on ${addr}`);
 }
-
 
 start();

@@ -1,28 +1,26 @@
-const { definitions } = require('../../definitions');
+const { definitions } = require("../../definitions");
 const { SuccessResponse } = definitions;
 
-exports.auth = app => {
-  app.get('/auth', {
+exports.auth = (app) => {
+  app.get("/auth", {
     schema: {
-      description: 'Check authentication of a user',
-      tags: ['User'],
-      summary: 'Check authentication of a user',
+      description: "Check authentication of a user",
+      tags: ["User"],
+      summary: "Check authentication of a user",
       response: {
-        200: SuccessResponse
+        200: SuccessResponse,
       },
       security: [
         {
-          bearer: []
-        }
-      ]
+          bearer: [],
+        },
+      ],
     },
-    preHandler: app.auth([
-      app.verifyJWT
-    ]),
+    preHandler: app.auth([app.verifyJWT]),
     handler: async () => {
       return {
-        success: true
-      }
-    }
-  })
+        success: true,
+      };
+    },
+  });
 };

@@ -1,9 +1,9 @@
-const { mongoose, User } = require('../../db');
-const { build } = require('../../app');
-const should = require('should');
-require('tap').mochaGlobals();
+const { mongoose, User } = require("../../db");
+const { build } = require("../../app");
+const should = require("should");
+require("tap").mochaGlobals();
 
-describe('For the route for creating a user POST: (/user)', () => {
+describe("For the route for creating a user POST: (/user)", () => {
   let app;
   const usernames = [];
 
@@ -12,12 +12,12 @@ describe('For the route for creating a user POST: (/user)', () => {
 
     for (let i = 0; i < 1; i++) {
       const response = await app.inject({
-        method: 'POST',
-        url: '/user',
+        method: "POST",
+        url: "/user",
         payload: {
           username: `user${i}`,
-          password: 'password1234567890'
-        }
+          password: "password1234567890",
+        },
       });
 
       const payload = response.json();
@@ -29,7 +29,6 @@ describe('For the route for creating a user POST: (/user)', () => {
   });
 
   after(async () => {
-
     for (const username of usernames) {
       await User.findOneAndDelete({ username });
     }
@@ -37,15 +36,14 @@ describe('For the route for creating a user POST: (/user)', () => {
     await mongoose.connection.close();
   });
 
-
-  it('it should return { success: true, data: (new user object) } and has a status code of 200 when called using POST', async () => {
+  it("it should return { success: true, data: (new user object) } and has a status code of 200 when called using POST", async () => {
     const response = await app.inject({
-      method: 'POST',
-      url: '/login',
+      method: "POST",
+      url: "/login",
       payload: {
         username: usernames[0],
-        password: 'password1234567890'
-      }
+        password: "password1234567890",
+      },
     });
 
     const payload = response.json();
@@ -58,15 +56,14 @@ describe('For the route for creating a user POST: (/user)', () => {
     // username.should.equal('user01');
   });
 
-
-  it('it should return { success: false, message: error message } and has a status code of 401 when called using POST and we use a different password', async () => {
+  it("it should return { success: false, message: error message } and has a status code of 401 when called using POST and we use a different password", async () => {
     const response = await app.inject({
-      method: 'POST',
-      url: '/login',
+      method: "POST",
+      url: "/login",
       payload: {
         username: usernames[0],
-        password: 'password123'
-      }
+        password: "password123",
+      },
     });
 
     const payload = response.json();
@@ -76,5 +73,5 @@ describe('For the route for creating a user POST: (/user)', () => {
     statusCode.should.equal(401);
     success.should.equal(false);
     should.exist(message);
-  })
+  });
 });

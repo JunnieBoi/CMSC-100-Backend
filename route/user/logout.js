@@ -1,5 +1,5 @@
-const { DiscardedToken } = require('../../db');
-const { definitions } = require('../../definitions');
+const { DiscardedToken } = require("../../db");
+const { definitions } = require("../../definitions");
 const { SuccessResponse } = definitions;
 
 /**
@@ -7,24 +7,22 @@ const { SuccessResponse } = definitions;
  *
  * @param {*} app
  */
-exports.logout = app => {
-  app.get('/logout', {
+exports.logout = (app) => {
+  app.get("/logout", {
     schema: {
-      description: 'Logs out a user',
-      tags: ['User'],
-      summary: 'Logs out a user',
+      description: "Logs out a user",
+      tags: ["User"],
+      summary: "Logs out a user",
       response: {
-        200: SuccessResponse
+        200: SuccessResponse,
       },
       security: [
         {
-          bearer: []
-        }
-      ]
+          bearer: [],
+        },
+      ],
     },
-    preHandler: app.auth([
-      app.verifyJWT
-    ]),
+    preHandler: app.auth([app.verifyJWT]),
     /**
      * handles the request for a given route
      *
@@ -36,16 +34,16 @@ exports.logout = app => {
       const { username } = user;
       const data = new DiscardedToken({
         username,
-        token
+        token,
       });
 
       await data.save();
 
       request.destroySession(() => {
         response.send({
-          success: true
-        })
+          success: true,
+        });
       });
-    }
-  })
+    },
+  });
 };
